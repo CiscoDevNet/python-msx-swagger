@@ -15,7 +15,7 @@ def current_path(file_name):
 
 setup(
     name='msxswagger',
-    version='0.3.0',
+    version='0.5.0',
     author="Cisco MSX",
     author_email="ananasta@cisco.com",
     description='A package that enables swagger ui in your python web application',
