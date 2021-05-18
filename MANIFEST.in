@@ -1,0 +1,2 @@
+include src/msxswagger/static/*
+include src/msxswagger/templates/*
