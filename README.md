@@ -114,3 +114,7 @@ msx_swagger = MSXSwaggerConfig(app, documentation_config=documentation_config)
 ```
 
 Now, when you go to swagger, you'll be able to authorize in swagger, and have the token bearer be included in all api calls
+
+### Contributors
+Ana Andrushchak
+Haemish Graham
