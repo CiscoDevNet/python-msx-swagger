@@ -2,8 +2,8 @@
 # Copyright (c) 2021 Cisco Systems, Inc and its affiliates
 # All rights reserved
 #
-from flask_restplus import Resource, Api
-from flask import Blueprint, render_template, json, jsonify, Flask, Response
+from flask_restplus import Api
+from flask import Blueprint, render_template, json, jsonify, Flask
 
 
 class Sso:
@@ -56,7 +56,6 @@ class MSXSwaggerConfig:
             template_folder='templates',
             static_folder='static')
         self.api = Api(blueprint)
-        self.resource = Resource
 
         @blueprint.route(documentation_config.ui_path)
         def swagger_ui():
