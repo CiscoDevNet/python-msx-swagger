@@ -1,6 +1,9 @@
 # msxswagger
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
+* [Installation](#installation)
+  * [Command Line](#command-line)
+  * [requirements.txt](#requirementstxt)
 * [Getting Started](#getting-started)
     * [Swagger Annotations](#swagger-annotations)
     * [OpenAPI Specifications](#openapi-specifications)
@@ -21,8 +24,19 @@ This module adds Swagger UI to Flask applications, based on annotated routes or 
 
 
 ## Installation
+### Command Line
+To install `msxswagger` from the command line run the command below.
 ```bash
 $ pip3 install git+https://github.com/CiscoDevNet/python-msx-swagger
+```
+
+### requirements.txt
+To include `msxswagger` as a dependency in `requirements.txt include it as shown:
+```bash
+Flask-Cors==3.0.10
+flask-restplus==0.13.0
+Werkzeug==0.16.1
+msxswagger @ git+https://github.com/CiscoDevNet/python-msx-swagger
 ```
 
 
@@ -114,6 +128,13 @@ app.register_blueprint(swagger.api.blueprint)
 if __name__ == '__main__':
 	app.run()
 ```
+
+Once you have deployed and run an application that has security enabled, all requests will be automatically passed the MSX access token for the current user. Your service can exchange the access token for a security context. The security context contains all the information required for your application to implement RBAC and Tenancy.
+
+![](images/secure_swagger.png)
+
+<br>
+
 
 
 ## Configuration Options
