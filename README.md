@@ -1,120 +1,150 @@
-## msxswagger
-This module adds swagger ui to flask applications, based on annotated routes.
+# msxswagger
+* [Introduction](#introduction)
+* [Prerequisites](#prerequisites)
+* [Getting Started](#getting-started)
+    * [Swagger Annotations](#swagger-annotations)
+    * [OpenAPI Specifications](#openapi-specifications)
+    * [Adding Security](#adding-security)
+* [Configuration Options](#configuration-options)
+    * [Documentation Config](#documentation-config)
+    * [Security](#security)
 
-### Prerequisites:
+
+## Introduction
+This module adds Swagger UI to Flask applications, based on annotated routes or an OpenAPI specification document.
+
+
+## Prerequisites
 - python3
 - pip3
 - Flask
 
-### Installation:
+
+## Installation
 ```bash
-pip3 install msxswagger
+$ pip3 install git+https://github.com/CiscoDevNet/python-msx-swagger
 ```
-### Usage - Default MSX Configuration: 
-Replace sampleservice with whichever root route you prefer; can be '/'
 
-``` python
-from flask import Flask, Blueprint, render_template
-from msxswagger import MSXSwaggerDefaultConfig
+
+### Swagger Annotations
+A small Flask application that populates the Swagger from annotations looks like this:
+```python
+from flask import Flask
+from flask_restplus import Resource
+from msxswagger import MSXSwaggerConfig, DocumentationConfig
+
+
+class ExampleApi(Resource):
+	def get(self):
+		return {"Hello": "World"}
+
+
 app = Flask(__name__)
-msx_swagger = MSXSwaggerDefaultConfig(app, '/sampleservice')
+documentation_config = DocumentationConfig(root_path='/helloworld',)
+swagger = MSXSwaggerConfig(app, documentation_config)
+swagger.api.add_resource(ExampleApi, "/api/example")
+app.register_blueprint(swagger.api.blueprint)
 
-app.register_blueprint(msx_swagger.api.blueprint)
-app.run(host='127.0.0.1', port=8081)
+if __name__ == '__main__':
+	app.run()
+
 ```
+Start the application and open `http://localhost:5000/helloworld/swagger` in a browser.
 
-The snippet above will display the swagger ui at the following route: 
->127.0.0.1:8081/sampleservice/swaggerui
+![](images/swagger_annotations.png)
 
-An example of adding a new route:
+<br>
+
+### OpenAPI Specifications
+To display the OpenAPI specification from a JSON file, pass the resource name in when you create `MSXSwaggerConfig`.
 ```python
-@msx_swagger.api.route('/')
-class MainClass(msx_swagger.resource):
-    def get(self):
-        return {'Hello': 'World'}
+from flask import Flask
+from msxswagger import MSXSwaggerConfig, DocumentationConfig
+from controllers.items_controller import ItemsApi, ItemApi
+from controllers.languages_controller import LanguageApi, LanguagesApi
+
+app = Flask(__name__)
+documentation_config = DocumentationConfig(root_path='/helloworld')
+swagger = MSXSwaggerConfig(app, documentation_config, swagger_resource="swagger.json")
+
+swagger.api.add_resource(ItemsApi, "/api/v1/items")
+swagger.api.add_resource(ItemApi, "/api/v1/items/<id>")
+swagger.api.add_resource(LanguagesApi, "/api/v1/languages")
+swagger.api.add_resource(LanguageApi, "/api/v1/languages/<id>")
+app.register_blueprint(swagger.api.blueprint)
+
+if __name__ == '__main__':
+	app.run()
 ```
-Please note how the returned object msx_swagger's resource attribute is passed in as the base class to your route's class.
-The class must be toggled with the msx_swagger.api object as well.
-Your new route can be accessed as:
-> 127.0.0.1:8081/sampleservice/
 
-Since swagger typically only displays api calls that return data only, here is an example of how to have separate APIs that return UI objects. 
-This will not be displayed in swagger.
+You will have to write boilerplate implementations of the controller classes before this application will run. Once you have, start the application and open `http://localhost:5000/helloworld/swagger` in a browser.
 
-First, you create a new flask blueprint
+![](images/openapi_specification.png)
+
+<br>
+
+### Adding Security
+If you need your API requests to include an MSX access token in the header, add the additional configuration shown. You can only test this application by deploying it into an MSX environment.
 ```python
-ui = Blueprint('root', __name__, url_prefix='/ui')
-```
-Then create your ui route:
-```python
-@ui.route('/')
-def homepage():
-    return render_template('index.html', title="Hello World"), 200
-```
-Of course, this assumes there is an index.html file in the templates directory of your flask project.
-Finally, be sure to register your blueprints with your flask application.
-```python
-app.register_blueprint(ui)
-app.register_blueprint(msx_swagger.api.blueprint)
-app.run(host='127.0.0.1', port=8081)
-```
+from flask import Flask
+from flask_restplus import Resource
+from msxswagger import MSXSwaggerConfig, DocumentationConfig, Sso, Security
 
-### Usage - Additional Configuration
 
-#### Modify swagger name and description
-```python
-from msxswagger import MSXSwaggerConfig, AppInfo
-msx_swagger = MSXSwaggerConfig(app, AppInfo(name='My Sample Service', description='The Sample Service to demonstrate e2e', version=1.0))
-```
-The parameters above will display on the swagger page
+class ExampleApi(Resource):
+	def get(self):
+		return {'Hello': 'World'}, 200
 
-#### Modify the swagger url 
-To modify the url of the swagger ui, simply set swagger_ui below to be the url you want it to be displayed on.
-```python
-from msxswagger import MSXSwaggerConfig, Security, DocumentationConfig
-documentation_config = DocumentationConfig(root_path='/', swagger_json_path='/swagger.json', swagger_ui='/mylocation/swaggerui', spec_version='3.0.0', 
-security=Security(False))
-msx_swagger = MSXSwaggerConfig(app, documentation_config=documentation_config)
-```
-Other DocumentationConfig properties:
-- root_path : This is the root path from which all other routes will be appended to
-- swagger_json_path : This is the location of where your swagger.json file is returned from. The default is /root_path/swagger.json.
-If you want swagger ui to display swagger json from different route, specify that route here, and be sure to set disable_swagger_json_generation to True
-in MSXSwaggerConfig
-- swagger_ui :  This is the url you want your swagger ui to be displayed at 
-- spec_version : This is the version of open api that is used for the swagger.json file; default is 3.0.0
-- security : This enables you to configure the MSX SSO Client with your application. See Security / Authorization section for details
 
-MSXSwaggerConfig properties:
-- app: this is the reference to your Flask app
-- app_info: AppInfo object instance as described above
-- documentation_config: DocumentationConfig as described in the above section
-- disable_swagger_json_generation: This is a boolean parameter; this is in the event that you don't want swagger to display the routes based on the @msx_swagger.api routing.
-Typically people do this if they want to provide their own swagger.json file. In order for swagger ui to display the desired json file; be sure to set swagger_json_path
-property in DocumentationConfig to be a valid route that returns a json file format, the following being an example:
-```python
-        @app.route('/swagger.json')
-        def swagger_json():
-            content = str(json.dumps('CONTENTS_OF_YOUR_SWAGGER_FILE_HERE'))
-            return Response(content,
-                            mimetype='application/json',
-                            headers={'Content-Disposition': 'attachment;filename=swagger.json'})
+app = Flask(__name__)
+
+sso = Sso(
+	base_url='https://MY_MSX_ENVIRONMENT/idm',
+	client_id='local-public-client2')
+
+documentation_config = DocumentationConfig(
+	root_path='/helloworld',
+	security=Security(True, sso))
+
+swagger = MSXSwaggerConfig(app, documentation_config)
+swagger.api.add_resource(ExampleApi, "/api/example")
+app.register_blueprint(swagger.api.blueprint)
+
+
+if __name__ == '__main__':
+	app.run()
 ```
 
-### Security / Authorization
-##### Configuring MSX SSO with Swagger
-In order to allow users to authenticate via swagger, you will need a valid SSO Client, which can be configured through settings in MSX.
-By default, authorization is disabled, you can enable/configure it as follows:
-```python
-from msxswagger import MSXSwaggerConfig, AppInfo, DocumentationConfig, Security, Sso
-sso = Sso(base_url='https://<MSX_URL>/idm', token_path='/v2/token', authorize_path='/v2/authorize')
-documentation_config = DocumentationConfig(root_path='/', swagger_json_path='/swagger.json', swagger_ui='/swaggerui', spec_version='3.0.0', 
-security=Security(True, sso))
-msx_swagger = MSXSwaggerConfig(app, documentation_config=documentation_config)
-```
 
-Now, when you go to swagger, you'll be able to authorize in swagger, and have the token bearer be included in all api calls
+## Configuration Options
+The class `MSXSwaggerConfig` takes three parameters:`
+* a Flask application reference
+* a Swagger Documentation Config instance
+* an optional OpenAPI specification resource (e.g. swagger.json)
 
-### Contributors
-Ana Andrushchak
-Haemish Graham
+
+### Documentation Config
+There are default values for most properties in this object, and often you will only have to set `root_path`.
+
+| Name           | Default            | Description |
+|----------------|--------------------|-------------|
+| root_path      |                    | The root path that other routes will be appended to. |
+| ui_path        | /swagger           | The path the Swagger UI will be served from. |
+| resource_path  | /swagger-resources | An internal value used to configure Swagger resources. |
+| api_path       | /apidocs.json      | An internal value used to configure Swagger resources. |
+| spec_version   | 3.0.0              | The Swagger version to render. |
+| security       | Security(False)    | SSO settings for integrating with MSX. |
+
+
+### Security
+Again there sensible default for some properties. In some cases you will just need to disable security, but if you enable in most cases you will only need to set `sso.base_url` and `sso.client_id`.
+
+| Name               | Default                   | Description |
+|--------------------|---------------------------|-------------|
+| enabled            | False                     | Disable or enable MSX SSO integration. |
+| sso.base_url       | http://localhost:9103/idm | Your application should look the Consul key `thirdpartyservices/defaultapplication/swagger.security.sso.baseUrl`. |
+| sso.token_path     | /v2/token                 | An internal value used to configure SSO. |
+| sso.authorize_path | /v2/authorize"            | An internal value used to configure SSO. |
+| sso.client_id      |                           | The public security client you created for your application. Your application should look up the Consul key `thirdpartyservices/helloworldservice/public.security.clientId`. |
+| sso.client_secret  |                           | Leave this blank. |
+
