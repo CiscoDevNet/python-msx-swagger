@@ -7,7 +7,9 @@
 * [Getting Started](#getting-started)
     * [Swagger Annotations](#swagger-annotations)
     * [OpenAPI Specifications](#openapi-specifications)
-    * [Adding Security](#adding-security)
+* [Adding Security](#adding-security)
+    * [Creating the Security Client](#creating-the-security-client)
+    * [Configuring MSX SSO](#configuring-msx-sso)
 * [Configuration Options](#configuration-options)
     * [Documentation Config](#documentation-config)
     * [Security](#security)
@@ -97,8 +99,61 @@ You will have to write boilerplate implementations of the controller classes bef
 
 <br>
 
-### Adding Security
-If you need your API requests to include an MSX access token in the header, add the additional configuration shown. You can only test this application by deploying it into an MSX environment.
+## Adding Security
+If you need your API requests to include an MSX access token in the header you will need to do few things:
+* create an MSX public security client
+* configure your `MSXSwaggerConfig` for MSX SSO
+* test on an MSX environment
+
+
+### Creating the Security Client
+You must create a public security client in your Cisco MSX Portal first. You can either do this through `Settings->SSO Configurations->Add SSO Clients` or using Swagger. To find the correct Swagger page click on your user name in the top left-hand corner, select `Account Settings`, scroll down and click `Swagger UI`, then select `IDM Microservice`. Make a security client using `POST /idm/api/v2/clientsecurity` and the payload below.
+```json
+{
+    "clientId":"my-public-security-client",
+    "grantTypes":[
+        "refresh_token",
+        "authorization_code"
+    ],
+    "maxTokensPerUser":-1,
+    "useSessionTimeout":false,
+    "resourceIds":[
+    ],
+    "scopes":[
+        "address",
+        "read",
+        "phone",
+        "openid",
+        "profile",
+        "write",
+        "email"
+    ],
+    "autoApproveScopes":[
+        "address",
+        "read",
+        "phone",
+        "openid",
+        "profile",
+        "write",
+        "email"
+    ],
+    "authorities":[
+        "ROLE_USER",
+        "ROLE_PUBLIC"
+    ],
+    "registeredRedirectUris":[
+        "/**/swagger-sso-redirect.html"
+    ],
+    "accessTokenValiditySeconds":9000,
+    "refreshTokenValiditySeconds":18000,
+    "additionalInformation":{
+    }
+}
+```
+
+### Configuring MSX SSO
+The example below shows how to enable Swagger security and configure MSX SSO. Remember to update `sso.base_url` and `sso.client_id` with values for your MSX environment and the security client you created respectively.
+
 ```python
 from flask import Flask
 from flask_restplus import Resource
@@ -114,7 +169,7 @@ app = Flask(__name__)
 
 sso = Sso(
 	base_url='https://MY_MSX_ENVIRONMENT/idm',
-	client_id='local-public-client2')
+	client_id='my-public-security-client')
 
 documentation_config = DocumentationConfig(
 	root_path='/helloworld',
@@ -165,7 +220,7 @@ Again there sensible default for some properties. In some cases you will just ne
 | enabled            | False                     | Disable or enable MSX SSO integration. |
 | sso.base_url       | http://localhost:9103/idm | Your application should look up the Consul key `thirdpartyservices/defaultapplication/swagger.security.sso.baseUrl`. |
 | sso.token_path     | /v2/token                 | An internal value used to configure SSO. |
-| sso.authorize_path | /v2/authorize"            | An internal value used to configure SSO. |
+| sso.authorize_path | /v2/authorize             | An internal value used to configure SSO. |
 | sso.client_id      |                           | The public security client you created for your application. Your application should look up the Consul key `thirdpartyservices/helloworldservice/public.security.clientId`. |
 | sso.client_secret  |                           | Leave this blank. |
 
