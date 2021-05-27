@@ -163,7 +163,7 @@ Again there sensible default for some properties. In some cases you will just ne
 | Name               | Default                   | Description |
 |--------------------|---------------------------|-------------|
 | enabled            | False                     | Disable or enable MSX SSO integration. |
-| sso.base_url       | http://localhost:9103/idm | Your application should look the Consul key `thirdpartyservices/defaultapplication/swagger.security.sso.baseUrl`. |
+| sso.base_url       | http://localhost:9103/idm | Your application should look up the Consul key `thirdpartyservices/defaultapplication/swagger.security.sso.baseUrl`. |
 | sso.token_path     | /v2/token                 | An internal value used to configure SSO. |
 | sso.authorize_path | /v2/authorize"            | An internal value used to configure SSO. |
 | sso.client_id      |                           | The public security client you created for your application. Your application should look up the Consul key `thirdpartyservices/helloworldservice/public.security.clientId`. |
