@@ -24,9 +24,9 @@ setup(
     packages=find_packages(),
     python_requires=">=3.6",
     install_requires=[
-        "Flask==2.0.3",
-        "Flask-Cors==3.0.10",
-        "flask-restx==0.5.1",
-        "Werkzeug==2.0.3",
+        "Flask~=2.0.3",
+        "Flask-Cors~=3.0.10",
+        "flask-restx~=0.5.1",
+        "Werkzeug~=2.0.3",
     ],
 )

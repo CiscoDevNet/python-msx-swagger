@@ -35,10 +35,10 @@ $ pip3 install git+https://github.com/CiscoDevNet/python-msx-swagger
 ### requirements.txt
 To include `msxswagger` as a dependency in `requirements.txt include it as shown:
 ```bash
-Flask==2.0.3
-Flask-Cors==3.0.10
-flask-restx==0.5.1
-Werkzeug==2.0.3
+Flask~=2.0.3
+Flask-Cors~=3.0.10
+flask-restx~=0.5.1
+Werkzeug~=2.0.3
 msxswagger @ git+https://github.com/CiscoDevNet/python-msx-swagger
 ```
 
