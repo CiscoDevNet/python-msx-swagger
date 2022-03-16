@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: msxswagger
-Version: 0.6.0
+Version: 0.7.0
 Summary: A package that enables swagger ui in your python web application
 Home-page: UNKNOWN
 Author: Cisco MSX
@@ -38,7 +38,7 @@ Description: # msxswagger
         A small Flask application that populates the Swagger from annotations looks like this:
         ```python
         from flask import Flask
-        from flask_restplus import Resource
+        from flask_restx import Resource
         from msxswagger import MSXSwaggerConfig, DocumentationConfig
         
         
@@ -95,7 +95,7 @@ Description: # msxswagger
         If you need your API requests to include an MSX access token in the header, add the additional configuration shown. You can only test this application by deploying it into an MSX environment.
         ```python
         from flask import Flask
-        from flask_restplus import Resource
+        from flask_restx import Resource
         from msxswagger import MSXSwaggerConfig, DocumentationConfig, Sso, Security
         
         
