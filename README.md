@@ -35,9 +35,10 @@ $ pip3 install git+https://github.com/CiscoDevNet/python-msx-swagger
 ### requirements.txt
 To include `msxswagger` as a dependency in `requirements.txt include it as shown:
 ```bash
-Flask-Cors==3.0.10
-flask-restplus==0.13.0
-Werkzeug==0.16.1
+Flask~=2.0.3
+Flask-Cors~=3.0.10
+flask-restx~=0.5.1
+Werkzeug~=2.0.3
 msxswagger @ git+https://github.com/CiscoDevNet/python-msx-swagger
 ```
 
@@ -46,7 +47,7 @@ msxswagger @ git+https://github.com/CiscoDevNet/python-msx-swagger
 A small Flask application that populates the Swagger from annotations looks like this:
 ```python
 from flask import Flask
-from flask_restplus import Resource
+from flask_restx import Resource
 from msxswagger import MSXSwaggerConfig, DocumentationConfig
 
 
@@ -156,7 +157,7 @@ The example below shows how to enable Swagger security and configure MSX SSO. Re
 
 ```python
 from flask import Flask
-from flask_restplus import Resource
+from flask_restx import Resource
 from msxswagger import MSXSwaggerConfig, DocumentationConfig, Sso, Security
 
 

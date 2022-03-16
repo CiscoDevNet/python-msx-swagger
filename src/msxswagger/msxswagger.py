@@ -2,7 +2,7 @@
 # Copyright (c) 2021 Cisco Systems, Inc and its affiliates
 # All rights reserved
 #
-from flask_restplus import Api
+from flask_restx import Api
 from flask import Blueprint, render_template, json, jsonify, Flask
 
 
